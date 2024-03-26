@@ -1,0 +1,39 @@
+CC      = gcc
+CFLAGS  = -O2 -DLSB_FIRST -DVGA -DSOUND #-DDEBUG
+OBJECTS = fce.o mapper.o M6502.o Debug.o
+OBJAT = vga.o svga.o keyboard.o pcats.o
+OBJ98 = pc98.o dmysnd.o
+SOURCE1 = fce.c mapper.c M6502.c Debug.c vga.c svga.c keyboard.c pcats.c pc98.c dmysnd.c
+SOURCE2 = fce.h M6502.h Codes.h Tables.h vga.h vgakeybo.h palette.h sb.h makefile
+
+ARC = pkzip -a
+VER = 01
+BINARC = fce${VER}.zip
+SRCARC = fce${VER}s.zip
+
+all: fce.exe fce98.exe
+
+fce.exe: ${OBJECTS} ${OBJAT}
+	${CC} -s -o fce ${OBJECTS} ${OBJAT}
+
+fce98.exe: ${OBJECTS} ${OBJ98}
+	${CC} -s -o fce98 ${OBJECTS} ${OBJ98}
+
+zip: ${BINARC} ${SRCARC}
+
+${BINARC}:fce.exe fce98.exe fce.txt
+	${ARC} ${BINARC} fce.exe fce98.exe fce.txt
+
+${SRCARC}:${SOURCE1} ${SOURCE2}
+	${ARC} ${SRCARC} ${SOURCE1}
+	${ARC} ${SRCARC} ${SOURCE2}
+
+dasm:	dasm.c
+	${CC} -o dasm dasm.c
+
+M6502.o:	M6502.c M6502.h Tables.h Codes.h
+Debug.o:	Debug.c M6502.h
+fce.o: fce.c fce.h m6502.h
+mapper.o: mapper.c fce.h
+pcats.o: pcats.c
+
